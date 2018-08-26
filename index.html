@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <style type="text/css">
         body {
-            width: 1400px;
+            width: 800px;
             margin: 0 auto;
             text-align: center;
 
@@ -16,8 +16,9 @@
         }
 
         h1 {
-            font-family: sans-serif;
+            font-family: "Helvetica Neue", sans-serif;
             font-size: 128px;
+            font-weight: 200;
             margin: 0;
         }
 
@@ -31,18 +32,15 @@
             cursor: pointer;
             border: 3px solid var(--slider-color);
         }
+
+        .slider-canvas:active {
+            cursor: grab;
+        }
     </style>
 </head>
 <body>
-    <h1>Scrub</h1>
-    <video preload="auto">
-        <source src="chili.mp4" type="video/mp4">
-        <p>Doesn't work on your browser :(</p>
-    </video>
-    <video preload="auto">
-        <source src="purple.mp4" type="video/mp4">
-        <p>Doesn't work on your browser :(</p>
-    </video>
+    <h1>scrub</h1>
+    <video preload="auto" src="chili.mp4" playsinline></video><br><video preload="auto" src="purple.mp4" playsinline></video>
     <p>
         🥀 <span id="slider"></span> 🌹
     </p>
@@ -96,27 +94,47 @@
 
             let dragging = false
 
-            function updateFromEvent(event){
+            function updateFromMoveEvent(event){
+                event.preventDefault()
                 if(!dragging) return
                 const rect = canvas.getBoundingClientRect()
                 let x = (event.clientX - rect.left ) * (canvas.width / canvas.clientWidth)
                 if(x < padding + radius) x = padding + radius
                 if(x > canvas.width - padding - radius) x = canvas.width - padding - radius
                 targetValue = map(x, padding + radius, canvas.width - padding - radius, 0, 1)
+                draw()
             }
+
+            function updateFromTouchMoveEvent(event){
+                if(!dragging) return
+                event.preventDefault()
+                const rect = canvas.getBoundingClientRect()
+                let x = (event.touches[0].clientX - rect.left ) * (canvas.width / canvas.clientWidth)
+                if(x < padding + radius) x = padding + radius
+                if(x > canvas.width - padding - radius) x = canvas.width - padding - radius
+                targetValue = map(x, padding + radius, canvas.width - padding - radius, 0, 1)
+                draw()
+            }
+
+            canvas.addEventListener('touchstart', event => {
+                event.preventDefault()
+                dragging = true
+                updateFromTouchMoveEvent(event)
+            })
+            canvas.addEventListener('touchend', event => {
+              event.preventDefault()
+              dragging = false
+            })
+            canvas.addEventListener('touchmove', updateFromTouchMoveEvent)
 
             canvas.addEventListener('mousedown', event => {
                 dragging = true
-                updateFromEvent(event)
+                updateFromMoveEvent(event)
             })
-            canvas.addEventListener('mouseup', () => dragging = false)
-            canvas.addEventListener('mousemove', event => {
-                if(event.buttons === 1) {
-                    updateFromEvent(event)
-                }
-            })
+            window.addEventListener('mousemove', updateFromMoveEvent)
+            window.addEventListener('mouseup', () => dragging = false)
 
-            // Smooth values and ad velocity
+            // Smooth values and add velocity
 
             let valV = 0
 
@@ -144,17 +162,17 @@
             loop()
 
             return canvas
-
         }
 
         var slider = SpringSlider({
             color: '#373',
             value: 0,
+            width: 400,
             output: value => {
                 var videos = document.querySelectorAll("video");
                 for (let video of videos) {
                     if (!isNaN(video.duration)){
-                        if (typeof(videos[0].fastSeek) === "functionBLARHG") {
+                        if (typeof(videos[0].fastSeek) === "function") {
                             video.fastSeek(value * video.duration);
                         }
                         else {
@@ -165,6 +183,12 @@
             }
         })
         document.querySelector('#slider').appendChild(slider);
+
+        // touch videos to make iOS safari load them
+        for (let video of document.querySelectorAll("video")) {
+            video.play();
+            video.pause();
+        }
     </script>
 </body>
 </html>
