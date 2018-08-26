@@ -5,8 +5,8 @@
     <meta charset="utf-8">
     <style type="text/css">
         body {
-            width: 800px;
-            margin: 0 auto;
+            font-family: "Helvetica Neue", sans-serif;
+            font-weight: 200;
             text-align: center;
 
             -moz-user-select: none;
@@ -16,15 +16,23 @@
         }
 
         h1 {
-            font-family: "Helvetica Neue", sans-serif;
             font-size: 128px;
             font-weight: 200;
             margin: 0;
         }
 
-        p {
+        .icons {
             font-size: 128px;
             margin: 0;
+        }
+
+        .credits {
+            font-size: 20px;
+        }
+
+        a:any-link {
+            color: #393;
+            text-decoration: none;
         }
 
         .slider-canvas {
@@ -40,9 +48,13 @@
 </head>
 <body>
     <h1>scrub</h1>
-    <video preload="auto" src="chili.mp4" playsinline></video><br><video preload="auto" src="purple.mp4" playsinline></video>
-    <p>
+    <video preload="auto" src="chili.mp4" playsinline></video>
+    <video preload="auto" src="purple.mp4" playsinline></video>
+    <p class="icons">
         🥀 <span id="slider"></span> 🌹
+    </p>
+    <p class="credits">
+        by <a href="http://twitter.com/pnutus">@pnutus</a>, slider by <a href="https://twitter.com/spaciecat">@spaciecat</a>
     </p>
     <script>
         function SpringSlider({walls = true, min = 0, max = 1, output = null, value = 0.5, width = 800, height = 100, padding = 10, color = '#333', acceleration = 0.05, elastic = 0.8} = {}){
