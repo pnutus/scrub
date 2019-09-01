@@ -37,19 +37,19 @@
 
         .slider-canvas {
             border-radius: 100px;
-            cursor: pointer;
+            cursor: grab;
             border: 3px solid var(--slider-color);
         }
 
         .slider-canvas:active {
-            cursor: grab;
+            cursor: grabbing;
         }
     </style>
 </head>
 <body>
     <h1>scrub</h1>
-    <video preload="auto" src="chili.mp4" playsinline></video>
-    <video preload="auto" src="purple.mp4" playsinline></video>
+    <video src="chili.mp4" playsinline></video>
+    <video src="purple.mp4" playsinline></video>
     <p class="icons">
         🥀 <span id="slider"></span> 🌹
     </p>
@@ -196,11 +196,30 @@
         })
         document.querySelector('#slider').appendChild(slider);
 
-        // touch videos to make iOS safari load them
         for (let video of document.querySelectorAll("video")) {
-            video.play();
-            video.pause();
+            // load as blob to force loading entire video
+            let req = new XMLHttpRequest();
+            req.open("GET", video.src, true);
+            req.responseType = "blob";
+
+            req.onload = function() {
+                // Onload is triggered even on 404
+                // so we need to check the status code
+                if (this.status === 200) {
+                    var videoBlob = this.response;
+                    video.src = URL.createObjectURL(videoBlob);
+                    // play/pause videos to make iOS load them
+                    video.play();
+                    video.pause();
+                }
+            }
+            req.onerror = function() {
+            // Error
+            }
+            req.send();
         }
+
+
     </script>
 </body>
 </html>
